@@ -1,0 +1,28 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/discover-keywords",
+      "schedule": "30 18 * * 0"
+    },
+    {
+      "path": "/api/cron/generate-content",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/publish",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/sync-performance",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/aeo-check",
+      "schedule": "0 4 * * 3"
+    },
+    {
+      "path": "/api/cron/refresh-content",
+      "schedule": "0 5 * * 1"
+    }
+  ]
+}
