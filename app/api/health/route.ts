@@ -1,4 +1,4 @@
-import { sql } from '@neondatabase/serverless';
+import { query } from '../../../lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
@@ -6,7 +6,7 @@ export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
   try {
     // Test database connection
-    const result = await sql('SELECT NOW() as time');
+    const result = await query('SELECT NOW() as time');
 
     const checks = {
       database: result.rows.length > 0 ? 'ok' : 'failed',

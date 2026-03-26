@@ -1,4 +1,4 @@
-import { sql } from '@neondatabase/serverless';
+import { query } from '../../../../lib/db';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { NextRequest, NextResponse } from 'next/server';
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       .filter((stmt) => stmt.length > 0);
 
     for (const statement of statements) {
-      await sql(statement);
+      await query(statement);
     }
 
     return NextResponse.json(
