@@ -49,8 +49,14 @@ export async function getTopQueries(
     const auth = initJWT();
     const siteUrl = process.env.GSC_SITE_URL || 'https://genrage.com';
 
+    console.log('🔐 GSC Auth initialized');
+    console.log('🌐 Querying site:', siteUrl);
+    console.log('📅 Query days:', days, 'Limit:', limit);
+
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
+
+    console.log('📊 Request dates:', startDate.toISOString().split('T')[0], 'to', new Date().toISOString().split('T')[0]);
 
     const response = await getSearchConsole().searchanalytics.query(
       {
@@ -63,6 +69,8 @@ export async function getTopQueries(
         }
       }
     );
+    
+    console.log('✅ GSC API response received with', response.data?.rows?.length || 0, 'rows');
 
     const rows = response.data.rows || [];
 
@@ -73,8 +81,19 @@ export async function getTopQueries(
       ctr: row.ctr || 0,
       position: row.position || 0
     }));
-  } catch (error) {
-    console.error('GSC getTopQueries error:', error);
+  } catch (error: any) {
+    console.error('❌ GSC getTopQueries error:', error?.message || String(error));
+    console.error('📋 Full error:', error);
+    
+    // Log API-specific error details
+    if (error?.errors) {
+      console.error('🔴 API Errors:', error.errors);
+    }
+    if (error?.message?.includes('permission')) {
+      console.error('🔐 Permission denied - check service account access in GSC');
+      console.error('   Site URL being queried:', process.env.GSC_SITE_URL);
+    }
+    
     throw error;
   }
 }
