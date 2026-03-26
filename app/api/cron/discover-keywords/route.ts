@@ -28,8 +28,14 @@ export async function GET(request: NextRequest) {
       status: 'RUNNING'
     });
 
+    // Debug: Check environment variables
+    console.log('🔍 DEBUG: GSC_SITE_URL =', process.env.GSC_SITE_URL);
+    console.log('🔍 DEBUG: GSC_SERVICE_ACCOUNT has email:', process.env.GSC_SERVICE_ACCOUNT_JSON ? 'YES' : 'NO');
+
     // Get top queries from GSC
+    console.log('📡 Attempting to fetch top queries from GSC...');
     const topQueries = await getTopQueries(28, 500);
+    console.log('✅ Successfully fetched', topQueries.length, 'top queries from GSC');
 
     // Get existing keywords
     const existingKeywords = await getKeywords();
@@ -162,19 +168,31 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Keyword discovery error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorDetails = error instanceof Error ? error.stack : '';
+    
+    console.error('❌ Keyword discovery error:', errorMessage);
+    console.error('📋 Stack:', errorDetails);
+    
+    // Log detailed error info
+    if (error instanceof Error && error.message.includes('permission')) {
+      console.error('🔐 Permission error detected. Checking config:');
+      console.error('   - GSC_SITE_URL:', process.env.GSC_SITE_URL);
+      console.error('   - Service Account JSON exists:', !!process.env.GSC_SERVICE_ACCOUNT_JSON);
+    }
 
     await logEngineJob({
       job_type: 'keyword_discovery',
       status: 'FAILED',
-      error_message: error instanceof Error ? error.message : 'Unknown error',
+      error_message: errorMessage,
       completed_at: new Date()
     });
 
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? errorDetails : undefined
       },
       { status: 500 }
     );
