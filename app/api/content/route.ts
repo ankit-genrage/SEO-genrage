@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, getContentByStatus } from '@/lib/db';
+import { query, getContentByStatus } from '../../../lib/db.ts';
 
 export const runtime = 'nodejs';
 
@@ -20,8 +20,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        content: result.rows || result,
-        count: (result.rows || result).length
+        content: result.rows,
+        count: result.rows.length
       },
       { status: 200 }
     );

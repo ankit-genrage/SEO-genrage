@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getContentByStatus, query, logEngineJob } from '@/lib/db';
-import { getPagePerformance } from '@/lib/gsc';
-import { getPageMetrics } from '@/lib/ga4';
-import { calculateContentHealthScore } from '@/lib/scoring';
+import { getContentByStatus, query, logEngineJob } from '../../../../lib/db.ts';
+import { getPagePerformance } from '../../../../lib/gsc.ts';
+import { getPageMetrics } from '../../../../lib/ga4.ts';
+import { calculateContentHealthScore } from '../../../../lib/scoring.ts';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     // Get all published content
     const publishedContent = await getContentByStatus('published', 100);
 
-    if (publishedContent.length === 0) {
+    if (publishedContent.rows.length === 0) {
       await logEngineJob({
         job_type: 'performance_sync',
         status: 'COMPLETED',
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
 
     let itemsUpdated = 0;
 
-    for (const content of publishedContent) {
+    for (const content of publishedContent.rows) {
       try {
         // Get GSC data for the content URL
         const gscData = await getPagePerformance(`/blogs/journal/${content.slug}`);
@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
       items_processed: itemsUpdated,
       details: {
         itemsUpdated,
-        totalPublished: publishedContent.length,
+        totalPublished: publishedContent.rows.length,
         executionTimeMs: Date.now() - jobStart
       },
       completed_at: new Date()
@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
         message: `Updated performance data for ${itemsUpdated} content pieces`,
         stats: {
           itemsUpdated,
-          totalPublished: publishedContent.length,
+          totalPublished: publishedContent.rows.length,
           executionTimeMs: Date.now() - jobStart
         }
       },

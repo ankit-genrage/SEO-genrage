@@ -20,7 +20,18 @@ function initJWT() {
   return jwtClient;
 }
 
-const searchconsole = google.searchconsole('v1');
+let searchconsole: any = null;
+
+function getSearchConsole() {
+  if (!searchconsole) {
+    const auth = initJWT();
+    searchconsole = google.searchconsole({
+      version: 'v1',
+      auth: auth
+    });
+  }
+  return searchconsole;
+}
 
 export async function getTopQueries(
   days: number = 28,
@@ -41,7 +52,7 @@ export async function getTopQueries(
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const response = await searchconsole.searchanalytics.query(
+    const response = await getSearchConsole().searchanalytics.query(
       {
         siteUrl,
         requestBody: {
@@ -50,8 +61,7 @@ export async function getTopQueries(
           dimensions: ['query'],
           rowLimit: limit
         }
-      },
-      { auth }
+      }
     );
 
     const rows = response.data.rows || [];
@@ -115,7 +125,7 @@ export async function getPagePerformance(
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const response = await searchconsole.searchanalytics.query(
+    const response = await getSearchConsole().searchanalytics.query(
       {
         siteUrl,
         requestBody: {
@@ -130,8 +140,7 @@ export async function getPagePerformance(
             }
           ]
         }
-      },
-      { auth }
+      }
     );
 
     const row = response.data.rows?.[0];
@@ -164,7 +173,7 @@ export async function getQueryPerformance(
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const response = await searchconsole.searchanalytics.query(
+    const response = await getSearchConsole().searchanalytics.query(
       {
         siteUrl,
         requestBody: {
@@ -179,8 +188,7 @@ export async function getQueryPerformance(
             }
           ]
         }
-      },
-      { auth }
+      }
     );
 
     const row = response.data.rows?.[0];
@@ -214,7 +222,7 @@ export async function getPageAndQueryPerformance(
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const response = await searchconsole.searchanalytics.query(
+    const response = await getSearchConsole().searchanalytics.query(
       {
         siteUrl,
         requestBody: {
@@ -234,8 +242,7 @@ export async function getPageAndQueryPerformance(
             }
           ]
         }
-      },
-      { auth }
+      }
     );
 
     const row = response.data.rows?.[0];

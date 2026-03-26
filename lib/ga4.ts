@@ -17,7 +17,18 @@ function initJWT() {
   return jwtClient;
 }
 
-const analyticsdata = google.analyticsdata('v1beta');
+let analyticsdata: any = null;
+
+function getAnalyticsData() {
+  if (!analyticsdata) {
+    const auth = initJWT();
+    analyticsdata = google.analyticsdata({
+      version: 'v1beta',
+      auth: auth
+    });
+  }
+  return analyticsdata;
+}
 
 export async function getOrganicSessions(
   days: number = 30
@@ -36,7 +47,7 @@ export async function getOrganicSessions(
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const response = await analyticsdata.properties.runReport(
+    const response = await getAnalyticsData().properties.runReport(
       {
         property: `properties/${propertyId}`,
         requestBody: {
@@ -69,8 +80,7 @@ export async function getOrganicSessions(
           },
           limit: 500
         }
-      },
-      { auth }
+      }
     );
 
     const rows = response.data.rows || [];
@@ -105,7 +115,7 @@ export async function getPageMetrics(
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const response = await analyticsdata.properties.runReport(
+    const response = await getAnalyticsData().properties.runReport(
       {
         property: `properties/${propertyId}`,
         requestBody: {
@@ -140,8 +150,7 @@ export async function getPageMetrics(
             }
           }
         }
-      },
-      { auth }
+      }
     );
 
     const row = response.data.rows?.[0];
@@ -186,7 +195,7 @@ export async function getAddToCartEvents(
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const response = await analyticsdata.properties.runReport(
+    const response = await getAnalyticsData().properties.runReport(
       {
         property: `properties/${propertyId}`,
         requestBody: {
@@ -215,8 +224,7 @@ export async function getAddToCartEvents(
           },
           limit: 100
         }
-      },
-      { auth }
+      }
     );
 
     const rows = response.data.rows || [];
@@ -247,7 +255,7 @@ export async function getPurchaseEvents(
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const response = await analyticsdata.properties.runReport(
+    const response = await getAnalyticsData().properties.runReport(
       {
         property: `properties/${propertyId}`,
         requestBody: {
@@ -276,8 +284,7 @@ export async function getPurchaseEvents(
           },
           limit: 100
         }
-      },
-      { auth }
+      }
     );
 
     const rows = response.data.rows || [];
@@ -311,7 +318,7 @@ export async function getPageTraffic(
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const response = await analyticsdata.properties.runReport(
+    const response = await getAnalyticsData().properties.runReport(
       {
         property: `properties/${propertyId}`,
         requestBody: {
@@ -329,8 +336,7 @@ export async function getPageTraffic(
           ],
           limit
         }
-      },
-      { auth }
+      }
     );
 
     const rows = response.data.rows || [];

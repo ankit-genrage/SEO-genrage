@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, updateContent } from '@/lib/db';
+import { query, updateContent } from '../../../../lib/db.ts';
 
 export const runtime = 'nodejs';
 

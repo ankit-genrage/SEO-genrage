@@ -2,7 +2,11 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -25,9 +29,57 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
-    }
+      "@/*": [
+        "./*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/lib/db": [
+        "./lib/db.ts"
+      ],
+      "@/lib/aeo": [
+        "./lib/aeo.ts"
+      ],
+      "@/lib/claude": [
+        "./lib/claude.ts"
+      ],
+      "@/lib/gsc": [
+        "./lib/gsc.ts"
+      ],
+      "@/lib/ga4": [
+        "./lib/ga4.ts"
+      ],
+      "@/lib/shopify": [
+        "./lib/shopify.ts"
+      ],
+      "@/lib/scoring": [
+        "./lib/scoring.ts"
+      ],
+      "@/lib/schema-generator": [
+        "./lib/schema-generator.ts"
+      ],
+      "@/lib/content-templates": [
+        "./lib/content-templates.ts"
+      ]
+    },
+    "allowJs": true,
+    "noEmit": true,
+    "incremental": true,
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

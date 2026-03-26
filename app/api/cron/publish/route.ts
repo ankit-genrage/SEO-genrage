@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getContentByStatus, updateContent, logEngineJob } from '@/lib/db';
-import { createBlogPost, injectSchemaMarkup, injectDirectAnswer } from '@/lib/shopify';
+import { getContentByStatus, updateContent, logEngineJob } from '../../../../lib/db.ts';
+import { createBlogPost, injectSchemaMarkup, injectDirectAnswer } from '../../../../lib/shopify.ts';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     // Get approved content
     const approvedContent = await getContentByStatus('approved', 10);
 
-    if (approvedContent.length === 0) {
+    if (approvedContent.rows.length === 0) {
       await logEngineJob({
         job_type: 'publish',
         status: 'COMPLETED',
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
     const published = [];
 
-    for (const content of approvedContent) {
+    for (const content of approvedContent.rows) {
       try {
         // Prepare HTML with schema and direct answer
         let bodyHtml = content.body_html || '';
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
       items_processed: published.length,
       details: {
         published: published.length,
-        failed: approvedContent.length - published.length,
+        failed: approvedContent.rows.length - published.length,
         executionTimeMs: Date.now() - jobStart
       },
       completed_at: new Date()
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
         published: published,
         stats: {
           itemsPublished: published.length,
-          itemsFailed: approvedContent.length - published.length,
+          itemsFailed: approvedContent.rows.length - published.length,
           executionTimeMs: Date.now() - jobStart
         }
       },

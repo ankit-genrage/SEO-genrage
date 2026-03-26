@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getKeywords, query, logEngineJob } from '@/lib/db';
-import { runAEOAudit, getAEOScorecard } from '@/lib/aeo';
+import { getKeywords, query, logEngineJob } from '../../../../lib/db.ts';
+import { runAEOAudit, getAEOScorecard } from '../../../../lib/aeo.ts';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     // Get top 20 target keywords
     const allKeywords = await getKeywords({ limit: 100 });
-    const topKeywords = allKeywords
+    const topKeywords = allKeywords.rows
       .sort((a: any, b: any) => (b.opportunity_score || 0) - (a.opportunity_score || 0))
       .slice(0, 20)
       .map((k: any) => k.keyword);

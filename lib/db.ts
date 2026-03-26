@@ -1,16 +1,21 @@
 import { Pool } from '@neondatabase/serverless';
 
-const connectionString = process.env.DATABASE_URL;
+let pool: Pool | null = null;
 
-if (!connectionString) {
-  throw new Error('DATABASE_URL environment variable is not set');
+function getPool(): Pool {
+  if (!pool) {
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+      throw new Error('DATABASE_URL environment variable is not set');
+    }
+    pool = new Pool({ connectionString });
+  }
+  return pool;
 }
-
-const pool = new Pool({ connectionString });
 
 export async function query(text: string, params?: any[]) {
   try {
-    const result = await pool.query(text, params);
+    const result = await getPool().query(text, params);
     return { rows: result.rows || [] };
   } catch (error) {
     console.error('Database query error:', error);
@@ -46,7 +51,7 @@ export async function getKeywords(filters?: {
     [...params, limit, offset]
   );
 
-  return result.rows;
+  return result;
 }
 
 export async function getContentByStatus(status: string, limit = 10) {
@@ -54,7 +59,7 @@ export async function getContentByStatus(status: string, limit = 10) {
     'SELECT * FROM content WHERE status = $1 ORDER BY updated_at DESC LIMIT $2',
     [status, limit]
   );
-  return result.rows;
+  return result;
 }
 
 export async function insertKeyword(keyword: {
@@ -205,7 +210,7 @@ export async function getQueuedContent(limit = 3) {
     LIMIT $1`,
     [limit]
   );
-  return result.rows;
+  return result;
 }
 
 export async function updateQueueStatus(id: number, status: string) {

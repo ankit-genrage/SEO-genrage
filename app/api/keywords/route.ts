@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getKeywords, insertKeyword } from '@/lib/db';
+import { getKeywords, insertKeyword } from '../../../lib/db.ts';
 
 export const runtime = 'nodejs';
 
@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        keywords,
-        count: keywords.length
+        keywords: keywords.rows,
+        count: keywords.rows.length
       },
       { status: 200 }
     );

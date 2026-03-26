@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getQueuedContent, updateContent, updateQueueStatus, logEngineJob } from '@/lib/db';
+import { getQueuedContent, updateContent, updateQueueStatus, logEngineJob } from '../../../../lib/db.ts';
 import {
   generateContentBrief,
   generateContent,
   generateSchema
-} from '@/lib/claude';
+} from '../../../../lib/claude.ts';
 import { marked } from 'marked';
 
 export const runtime = 'nodejs';
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     // Get queued content items (max 3 per day to control costs)
     const queuedItems = await getQueuedContent(3);
 
-    if (queuedItems.length === 0) {
+    if (queuedItems.rows.length === 0) {
       await logEngineJob({
         job_type: 'content_generation',
         status: 'COMPLETED',
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     const generatedContent = [];
     let totalCost = 0;
 
-    for (const queueItem of queuedItems) {
+    for (const queueItem of queuedItems.rows) {
       try {
         // Generate content brief
         const brief = await generateContentBrief(

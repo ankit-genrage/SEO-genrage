@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTopQueries } from '@/lib/gsc';
-import { classifyIntent, suggestRelatedKeywords } from '@/lib/claude';
-import { calculateOpportunityScore } from '@/lib/scoring';
+import { getTopQueries } from '../../../../lib/gsc.ts';
+import { classifyIntent, suggestRelatedKeywords } from '../../../../lib/claude.ts';
+import { calculateOpportunityScore } from '../../../../lib/scoring.ts';
 import {
   insertKeyword,
   getKeywords,
   query,
   logEngineJob
-} from '@/lib/db';
+} from '../../../../lib/db.ts';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     // Get existing keywords
     const existingKeywords = await getKeywords();
-    const existingKeywordSet = new Set(existingKeywords.map((k: any) => k.keyword));
+    const existingKeywordSet = new Set(existingKeywords.rows.map((k: any) => k.keyword));
 
     // Insert/update keywords
     let newKeywordsCount = 0;
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get top opportunity keywords and suggest related ones
-    const topOpportunityKeywords = existingKeywords
+    const topOpportunityKeywords = existingKeywords.rows
       .sort((a: any, b: any) => (b.opportunity_score || 0) - (a.opportunity_score || 0))
       .slice(0, 20)
       .map((k: any) => k.keyword);
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
           try {
             const relatedKeywords = await suggestRelatedKeywords(
               keyword,
-              existingKeywords.map((k: any) => k.keyword)
+              existingKeywords.rows.map((k: any) => k.keyword)
             );
 
             // Insert related keywords if not already present
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Queue top unassigned keywords for content generation
-    const unassignedKeywords = (await getKeywords({ status: 'discovered' })).filter(
+    const unassignedKeywords = (await getKeywords({ status: 'discovered' })).rows.filter(
       (k: any) => !k.content_id
     );
 

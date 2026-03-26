@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, logEngineJob } from '@/lib/db';
-import { calculateContentHealthScore, shouldRefreshContent } from '@/lib/scoring';
+import { query, logEngineJob } from '../../../../lib/db.ts';
+import { calculateContentHealthScore, shouldRefreshContent } from '../../../../lib/scoring.ts';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
