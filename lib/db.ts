@@ -11,7 +11,7 @@ const pool = new Pool({ connectionString });
 export async function query(text: string, params?: any[]) {
   try {
     const result = await pool.query(text, params);
-    return result;
+    return { rows: result.rows || [] };
   } catch (error) {
     console.error('Database query error:', error);
     throw error;
