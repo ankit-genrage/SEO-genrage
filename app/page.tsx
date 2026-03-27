@@ -23,12 +23,26 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Manual Keywords State
+  const [manualKeyword, setManualKeyword] = useState('');
+  const [variantKeyword, setVariantKeyword] = useState('');
+  const [manualKeywords, setManualKeywords] = useState<Array<any>>([]);
+  const [processingKeyword, setProcessingKeyword] = useState(false);
+  const [processingVariants, setProcessingVariants] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDashboard();
     const interval = setInterval(fetchDashboard, 60000); // Refresh every minute
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'manual') {
+      fetchManualKeywords();
+    }
+  }, [activeTab]);
 
   const fetchDashboard = async () => {
     try {
@@ -44,6 +58,103 @@ export default function Dashboard() {
       setError('Error fetching dashboard');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchManualKeywords = async () => {
+    try {
+      const response = await fetch('/api/keywords/manual');
+      const data = await response.json();
+      if (data.success) {
+        setManualKeywords(data.keywords);
+      }
+    } catch (err) {
+      console.error('Error fetching manual keywords:', err);
+    }
+  };
+
+  const handleAddKeyword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualKeyword.trim()) return;
+
+    setProcessingKeyword(true);
+    try {
+      const response = await fetch('/api/keywords/manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          keyword: manualKeyword,
+          intent: 'informational'
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccessMessage(`✅ Keyword "${manualKeyword}" added successfully!`);
+        setManualKeyword('');
+        fetchManualKeywords();
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        setSuccessMessage(`❌ ${data.error}`);
+      }
+    } catch (err) {
+      setSuccessMessage('❌ Error adding keyword');
+    } finally {
+      setProcessingKeyword(false);
+    }
+  };
+
+  const handleGenerateVariants = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!variantKeyword.trim()) return;
+
+    setProcessingVariants(true);
+    try {
+      const response = await fetch('/api/keywords/generate-variants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          keyword: variantKeyword,
+          count: 10
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccessMessage(`✅ Generated ${data.inserted} variants for "${variantKeyword}"!`);
+        setVariantKeyword('');
+        fetchManualKeywords();
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        setSuccessMessage(`❌ ${data.error}`);
+      }
+    } catch (err) {
+      setSuccessMessage('❌ Error generating variants');
+    } finally {
+      setProcessingVariants(false);
+    }
+  };
+
+  const handleGenerateContent = async (keywordId: number) => {
+    try {
+      const response = await fetch('/api/content/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keyword_id: keywordId })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccessMessage(`✅ Content generated for this keyword!`);
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        setSuccessMessage(`❌ ${data.error}`);
+      }
+    } catch (err) {
+      setSuccessMessage('❌ Error generating content');
     }
   };
 
@@ -151,6 +262,18 @@ export default function Dashboard() {
             }}
           >
             AEO
+          </button>
+          <button
+            onClick={() => setActiveTab('manual')}
+            style={{
+              background: activeTab === 'manual' ? '#fff' : 'transparent',
+              color: activeTab === 'manual' ? '#141414' : '#fff',
+              border: 'none',
+              padding: '0.5rem 1rem',
+              borderRadius: '0'
+            }}
+          >
+            Manual Keywords
           </button>
         </div>
 
@@ -350,6 +473,152 @@ export default function Dashboard() {
                     </td>
                   </tr>
                 ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Manual Keywords Tab */}
+        {activeTab === 'manual' && (
+          <div>
+            {successMessage && (
+              <div style={{
+                background: successMessage.includes('❌') ? '#3d2121' : '#213d21',
+                color: successMessage.includes('❌') ? '#ff6b6b' : '#90ee90',
+                padding: '1rem',
+                borderRadius: '4px',
+                marginBottom: '2rem',
+                border: `1px solid ${successMessage.includes('❌') ? '#ff6b6b' : '#90ee90'}`
+              }}>
+                {successMessage}
+              </div>
+            )}
+
+            <h2>Add Keywords Manually</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
+              {/* Single Keyword Form */}
+              <div className="card" style={{ padding: '1.5rem', background: '#1a1a1a', border: '1px solid #333' }}>
+                <h3>Add Single Keyword</h3>
+                <form onSubmit={handleAddKeyword} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <input
+                    type="text"
+                    placeholder="e.g., baggy oversized hoodie"
+                    value={manualKeyword}
+                    onChange={(e) => setManualKeyword(e.target.value)}
+                    style={{
+                      padding: '0.75rem',
+                      background: '#0a0a0a',
+                      border: '1px solid #333',
+                      color: '#fff',
+                      borderRadius: '4px',
+                      fontSize: '0.95rem'
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={processingKeyword || !manualKeyword.trim()}
+                    style={{
+                      padding: '0.75rem',
+                      background: processingKeyword ? '#666' : '#fff',
+                      color: '#141414',
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontWeight: 'bold',
+                      cursor: processingKeyword ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    {processingKeyword ? '⏳ Adding...' : '➕ Add Keyword'}
+                  </button>
+                </form>
+              </div>
+
+              {/* Variants Generator Form */}
+              <div className="card" style={{ padding: '1.5rem', background: '#1a1a1a', border: '1px solid #333' }}>
+                <h3>Generate 10 Variants</h3>
+                <form onSubmit={handleGenerateVariants} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <input
+                    type="text"
+                    placeholder="e.g., baggy pants"
+                    value={variantKeyword}
+                    onChange={(e) => setVariantKeyword(e.target.value)}
+                    style={{
+                      padding: '0.75rem',
+                      background: '#0a0a0a',
+                      border: '1px solid #333',
+                      color: '#fff',
+                      borderRadius: '4px',
+                      fontSize: '0.95rem'
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={processingVariants || !variantKeyword.trim()}
+                    style={{
+                      padding: '0.75rem',
+                      background: processingVariants ? '#666' : '#fff',
+                      color: '#141414',
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontWeight: 'bold',
+                      cursor: processingVariants ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    {processingVariants ? '⏳ Generating...' : '🚀 Generate Variants'}
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <h2>Your Manual Keywords</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Keyword</th>
+                  <th>Intent</th>
+                  <th>Score</th>
+                  <th>Added</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {manualKeywords.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: 'center', color: '#666' }}>
+                      No manual keywords yet. Add one above!
+                    </td>
+                  </tr>
+                ) : (
+                  manualKeywords.map((kw) => (
+                    <tr key={kw.id}>
+                      <td>
+                        <strong>{kw.keyword}</strong>
+                      </td>
+                      <td>
+                        <span className="status-badge" style={{ background: '#222', color: '#aaa' }}>
+                          {kw.intent || 'unknown'}
+                        </span>
+                      </td>
+                      <td>{kw.opportunity_score ? kw.opportunity_score.toFixed(0) : '—'}</td>
+                      <td>{new Date(kw.created_at).toLocaleDateString()}</td>
+                      <td>
+                        <button
+                          onClick={() => handleGenerateContent(kw.id)}
+                          style={{
+                            padding: '0.4rem 0.8rem',
+                            background: '#333',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '3px',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem'
+                          }}
+                        >
+                          Generate Content
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
