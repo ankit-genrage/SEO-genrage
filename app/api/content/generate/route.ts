@@ -47,20 +47,22 @@ export async function POST(request: NextRequest) {
 
     console.log(`📝 Generating content for keyword: "${targetKeyword}"`);
 
-    // Check if content already exists for this keyword
-    const existingContent = await query(
-      'SELECT id FROM content WHERE keyword = $1',
-      [targetKeyword.toLowerCase()]
-    );
-
-    if (existingContent.rows && existingContent.rows.length > 0) {
-      return NextResponse.json(
-        { 
-          error: 'Content already exists for this keyword',
-          contentId: existingContent.rows[0].id
-        },
-        { status: 409 }
+    // Check if content already exists for this keyword (via keyword_id)
+    if (targetKeywordId) {
+      const existingContent = await query(
+        'SELECT id FROM content WHERE keyword_id = $1',
+        [targetKeywordId]
       );
+
+      if (existingContent.rows && existingContent.rows.length > 0) {
+        return NextResponse.json(
+          { 
+            error: 'Content already exists for this keyword',
+            contentId: existingContent.rows[0].id
+          },
+          { status: 409 }
+        );
+      }
     }
 
     // Generate blog content using Claude
