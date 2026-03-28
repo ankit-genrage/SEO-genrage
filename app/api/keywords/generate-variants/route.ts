@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     console.log(`📝 Generating ${count} variants for keyword: "${trimmedKeyword}"`);
 
     // Use Gemini to generate keyword variants
-    const model = client.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = client.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
     
     const prompt = `Generate ${count} SEO-friendly keyword variations for: "${trimmedKeyword}"
           
