@@ -101,7 +101,7 @@ export async function checkClaude(keyword: string): Promise<AEOCheckResult> {
     const query = `What is ${keyword}? Please provide a brief answer (2-3 sentences).`;
 
     const response = await client.chat.completions.create({
-      model: 'mixtral-8x7b',
+      model: 'llama-3-70b-8192',
       max_tokens: 300,
       messages: [
         {
