@@ -95,7 +95,7 @@ export async function checkClaude(keyword: string): Promise<AEOCheckResult> {
   try {
     const { GoogleGenerativeAI } = await import('@google/generative-ai');
     const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-    const model = client.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
     const query = `What is ${keyword}? Please provide a brief answer.`;
 
