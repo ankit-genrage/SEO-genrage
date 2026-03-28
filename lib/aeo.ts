@@ -93,25 +93,22 @@ export async function checkPerplexity(keyword: string): Promise<AEOCheckResult> 
 
 export async function checkClaude(keyword: string): Promise<AEOCheckResult> {
   try {
-    const Anthropic = await import('@anthropic-ai/sdk').then((m) => m.default);
-    const client = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY
-    });
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+    const model = client.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const query = `What is ${keyword}? Please provide a brief answer.`;
 
-    const response = await client.messages.create({
-      model: 'claude-opus-4-20250514',
-      max_tokens: 500,
-      messages: [
+    const response = await model.generateContent({
+      contents: [
         {
           role: 'user',
-          content: query
+          parts: [{ text: query }]
         }
       ]
     });
 
-    const responseText = (response.content[0] as any).text || '';
+    const responseText = response.response.text();
 
     const genrageMentioned = responseText.toLowerCase().includes('genrage');
     const genrageLinked = /https?:\/\/[^\s]*genrage[^\s]*/.test(responseText);

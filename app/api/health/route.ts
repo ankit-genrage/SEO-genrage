@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
         hasGSCServiceAccount: !!process.env.GSC_SERVICE_ACCOUNT_JSON,
         hasGA4ServiceAccount: !!process.env.GA4_SERVICE_ACCOUNT_JSON,
         hasShopifyToken: !!process.env.SHOPIFY_ACCESS_TOKEN,
-        hasAnthropicKey: !!process.env.ANTHROPIC_API_KEY,
+        hasGeminiKey: !!process.env.GEMINI_API_KEY,
         hasCronSecret: !!process.env.CRON_SECRET,
         hasPerplexityKey: !!process.env.PERPLEXITY_API_KEY
       }
