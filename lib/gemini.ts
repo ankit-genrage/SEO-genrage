@@ -37,7 +37,7 @@ interface ContentGenerationParams {
 
 export async function classifyIntent(keyword: string): Promise<string> {
   try {
-    const model = client.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+    const model = client.getGenerativeModel({ model: 'gemini-pro' });
 
     const prompt = `Classify the search intent of this keyword. Respond with ONLY one word: informational, commercial, transactional, or navigational.
 
@@ -64,7 +64,7 @@ Keyword: "${keyword}"`;
 
 export async function suggestRelatedKeywords(keyword: string): Promise<string[]> {
   try {
-    const model = client.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+    const model = client.getGenerativeModel({ model: 'gemini-pro' });
 
     const prompt = `Generate 5 related keyword variations for: "${keyword}"
     
@@ -95,7 +95,7 @@ export async function generateContentBrief(
   topCompetitors: string[] = []
 ): Promise<any> {
   try {
-    const model = client.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+    const model = client.getGenerativeModel({ model: 'gemini-pro' });
 
     const prompt = `Create a detailed content brief for a blog post about: "${keyword}" (intent: ${intent})
 
@@ -136,7 +136,7 @@ export async function generateContent(params: ContentGenerationParams): Promise<
 }> {
   try {
     const model = client.getGenerativeModel({
-      model: 'gemini-1.5-flash-latest',
+      model: 'gemini-pro',
       systemInstruction: GENRAGE_SYSTEM_PROMPT
     });
 
@@ -217,7 +217,7 @@ export async function refreshContent(
 ): Promise<string> {
   try {
     const model = client.getGenerativeModel({
-      model: 'gemini-1.5-flash-latest',
+      model: 'gemini-pro',
       systemInstruction: GENRAGE_SYSTEM_PROMPT
     });
 
@@ -252,7 +252,7 @@ Please:
 
 export async function generateSchema(schemaType: string, data: any): Promise<any> {
   try {
-    const model = client.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+    const model = client.getGenerativeModel({ model: 'gemini-pro' });
 
     const prompt = `Generate JSON-LD schema markup for a ${schemaType}.
 
