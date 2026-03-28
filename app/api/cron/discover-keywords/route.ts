@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTopQueries } from '../../../../lib/gsc.ts';
-import { classifyIntent, suggestRelatedKeywords } from '../../../../lib/claude.ts';
+import { classifyIntent, suggestRelatedKeywords } from '../../../../lib/gemini.ts';
 import { calculateOpportunityScore } from '../../../../lib/scoring.ts';
 import {
   insertKeyword,
@@ -96,10 +96,7 @@ export async function GET(request: NextRequest) {
         const batch = topOpportunityKeywords.slice(i, i + batchSize);
         for (const keyword of batch) {
           try {
-            const relatedKeywords = await suggestRelatedKeywords(
-              keyword,
-              existingKeywords.rows.map((k: any) => k.keyword)
-            );
+            const relatedKeywords = await suggestRelatedKeywords(keyword);
 
             // Insert related keywords if not already present
             for (const related of relatedKeywords) {

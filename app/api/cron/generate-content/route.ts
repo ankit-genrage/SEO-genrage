@@ -4,7 +4,7 @@ import {
   generateContentBrief,
   generateContent,
   generateSchema
-} from '../../../../lib/claude.ts';
+} from '../../../../lib/gemini.ts';
 import { marked } from 'marked';
 
 export const runtime = 'nodejs';

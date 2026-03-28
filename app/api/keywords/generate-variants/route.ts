@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insertKeyword, query } from '../../../../lib/db';
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
-const client = new Anthropic();
+const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,14 +23,10 @@ export async function POST(request: NextRequest) {
 
     console.log(`📝 Generating ${count} variants for keyword: "${trimmedKeyword}"`);
 
-    // Use Claude to generate keyword variants
-    const message = await client.messages.create({
-      model: 'claude-opus-4-20250514',
-      max_tokens: 1024,
-      messages: [
-        {
-          role: 'user',
-          content: `Generate ${count} SEO-friendly keyword variations for: "${trimmedKeyword}"
+    // Use Gemini to generate keyword variants
+    const model = client.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    
+    const prompt = `Generate ${count} SEO-friendly keyword variations for: "${trimmedKeyword}"
           
 Requirements:
 - Include long-tail variations
@@ -40,21 +36,26 @@ Requirements:
 - Format: ["keyword1", "keyword2", ...]
 - Do NOT include the original keyword in the list
 
-Original keyword: "${trimmedKeyword}"`
+Original keyword: "${trimmedKeyword}"`;
+
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: prompt }]
         }
       ]
     });
 
-    // Extract the response text
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+    const responseText = result.response.text();
     
-    console.log('Claude response:', responseText);
+    console.log('Gemini response:', responseText);
 
     // Parse the JSON array
     const variants: string[] = JSON.parse(responseText);
 
     if (!Array.isArray(variants)) {
-      throw new Error('Claude did not return an array of keywords');
+      throw new Error('Gemini did not return an array of keywords');
     }
 
     console.log(`✅ Generated ${variants.length} variants`);
