@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insertKeyword, query } from '../../../../lib/db';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { suggestRelatedKeywords } from '../../../../lib/groq';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
-
-const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,49 +21,22 @@ export async function POST(request: NextRequest) {
 
     console.log(`📝 Generating ${count} variants for keyword: "${trimmedKeyword}"`);
 
-    // Use Gemini to generate keyword variants
-    const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
-    
-    const prompt = `Generate ${count} SEO-friendly keyword variations for: "${trimmedKeyword}"
-          
-Requirements:
-- Include long-tail variations
-- Include intent modifiers (for men, cheap, buy, near me, how to, etc)
-- Relevant to streetwear/fashion niche
-- Return ONLY a JSON array of keywords, no other text
-- Format: ["keyword1", "keyword2", ...]
-- Do NOT include the original keyword in the list
+    // Use Groq to generate keyword variants
+    const variants = await suggestRelatedKeywords(trimmedKeyword);
+    const selectedVariants = variants.slice(0, count);
 
-Original keyword: "${trimmedKeyword}"`;
-
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: 'user',
-          parts: [{ text: prompt }]
-        }
-      ]
-    });
-
-    const responseText = result.response.text();
-    
-    console.log('Gemini response:', responseText);
-
-    // Parse the JSON array
-    const variants: string[] = JSON.parse(responseText);
-
-    if (!Array.isArray(variants)) {
-      throw new Error('Gemini did not return an array of keywords');
+    if (!Array.isArray(selectedVariants) || selectedVariants.length === 0) {
+      throw new Error('Failed to generate keyword variants');
     }
 
-    console.log(`✅ Generated ${variants.length} variants`);
+    console.log(`✅ Generated ${selectedVariants.length} variants`);
 
     // Insert all variants into the database
     const insertedKeywords = [];
     let successCount = 0;
     let duplicateCount = 0;
 
-    for (const variant of variants) {
+    for (const variant of selectedVariants) {
       const variantLower = variant.trim().toLowerCase();
 
       if (variantLower.length === 0) continue;
@@ -104,7 +75,7 @@ Original keyword: "${trimmedKeyword}"`;
       success: true,
       message: `Generated and inserted ${successCount} keyword variants`,
       originalKeyword: trimmedKeyword,
-      totalGenerated: variants.length,
+      totalGenerated: selectedVariants.length,
       inserted: successCount,
       duplicates: duplicateCount,
       keywords: insertedKeywords

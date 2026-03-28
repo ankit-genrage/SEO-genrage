@@ -4,7 +4,7 @@ import {
   generateContentBrief,
   generateContent,
   generateSchema
-} from '../../../../lib/gemini.ts';
+} from '../../../../lib/groq';
 import { marked } from 'marked';
 
 export const runtime = 'nodejs';
@@ -52,8 +52,7 @@ export async function GET(request: NextRequest) {
         // Generate content brief
         const brief = await generateContentBrief(
           queueItem.keyword,
-          'informational', // intent will be more sophisticated in production
-          []
+          'informational' // intent will be more sophisticated in production
         );
 
         if (!brief) {

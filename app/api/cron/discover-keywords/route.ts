@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTopQueries } from '../../../../lib/gsc.ts';
-import { classifyIntent, suggestRelatedKeywords } from '../../../../lib/gemini.ts';
+import { classifyIntent, suggestRelatedKeywords } from '../../../../lib/groq';
 import { calculateOpportunityScore } from '../../../../lib/scoring.ts';
 import {
   insertKeyword,

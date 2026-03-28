@@ -93,22 +93,25 @@ export async function checkPerplexity(keyword: string): Promise<AEOCheckResult> 
 
 export async function checkClaude(keyword: string): Promise<AEOCheckResult> {
   try {
-    const { GoogleGenerativeAI } = await import('@google/generative-ai');
-    const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-    const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    const Groq = (await import('groq-sdk')).default;
+    const client = new Groq({
+      apiKey: process.env.GROQ_API_KEY || ''
+    });
 
-    const query = `What is ${keyword}? Please provide a brief answer.`;
+    const query = `What is ${keyword}? Please provide a brief answer (2-3 sentences).`;
 
-    const response = await model.generateContent({
-      contents: [
+    const response = await client.chat.completions.create({
+      model: 'mixtral-8x7b-32768',
+      max_tokens: 300,
+      messages: [
         {
           role: 'user',
-          parts: [{ text: query }]
+          content: query
         }
       ]
     });
 
-    const responseText = response.response.text();
+    const responseText = response.choices[0]?.message?.content || '';
 
     const genrageMentioned = responseText.toLowerCase().includes('genrage');
     const genrageLinked = /https?:\/\/[^\s]*genrage[^\s]*/.test(responseText);

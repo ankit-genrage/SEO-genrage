@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insertContent, query } from '../../../../lib/db';
-import { generateContent } from '../../../../lib/gemini';
+import { generateContent } from '../../../../lib/groq';
 
 export const runtime = 'nodejs';
 export const maxDuration = 120;
