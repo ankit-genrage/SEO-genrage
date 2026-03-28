@@ -40,7 +40,7 @@ interface ContentGenerationParams {
 export async function classifyIntent(keyword: string): Promise<string> {
   try {
     const message = await client.chat.completions.create({
-      model: 'llama-3.1-70b-versatile',
+      model: 'mixtral-8x7b',
       max_tokens: 100,
       messages: [
         {
@@ -61,7 +61,7 @@ export async function classifyIntent(keyword: string): Promise<string> {
 export async function suggestRelatedKeywords(keyword: string): Promise<string[]> {
   try {
     const message = await client.chat.completions.create({
-      model: 'llama-3.1-70b-versatile',
+      model: 'mixtral-8x7b',
       max_tokens: 500,
       messages: [
         {
@@ -85,7 +85,7 @@ export async function suggestRelatedKeywords(keyword: string): Promise<string[]>
 export async function generateContentBrief(keyword: string, intent: string): Promise<string> {
   try {
     const message = await client.chat.completions.create({
-      model: 'llama-3.1-70b-versatile',
+      model: 'mixtral-8x7b',
       max_tokens: 500,
       messages: [
         {
@@ -118,7 +118,7 @@ export async function generateContent(params: ContentGenerationParams): Promise<
     const { keyword, intent, brief } = params;
 
     const message = await client.chat.completions.create({
-      model: 'llama-3.1-70b-versatile',
+      model: 'mixtral-8x7b',
       max_tokens: 2000,
       messages: [
         {
@@ -197,7 +197,7 @@ export async function refreshContent(
 ): Promise<string> {
   try {
     const message = await client.chat.completions.create({
-      model: 'llama-3.1-70b-versatile',
+      model: 'mixtral-8x7b',
       max_tokens: 2000,
       messages: [
         {
@@ -233,7 +233,7 @@ Return the improved article in the same format.`
 export async function generateSchema(schemaType: string, data: any): Promise<string> {
   try {
     const message = await client.chat.completions.create({
-      model: 'llama-3.1-70b-versatile',
+      model: 'mixtral-8x7b',
       max_tokens: 1000,
       messages: [
         {
