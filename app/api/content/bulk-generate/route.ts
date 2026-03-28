@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, insertContent } from '../../../../lib/db';
-import { generateContentBrief, generateContent, generateSchema } from '../../../../lib/groq';
+import { generateContentBrief, generateContent, generateSchema } from '../../../../lib/ollama';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300; // 5 minutes for bulk operations

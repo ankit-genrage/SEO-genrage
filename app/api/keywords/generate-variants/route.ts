@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insertKeyword, query } from '../../../../lib/db';
-import { suggestRelatedKeywords } from '../../../../lib/groq';
+import { suggestRelatedKeywords } from '../../../../lib/ollama';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;

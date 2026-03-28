@@ -4,7 +4,7 @@ import {
   generateContentBrief,
   generateContent,
   generateSchema
-} from '../../../../lib/groq';
+} from '../../../../lib/ollama';
 import { marked } from 'marked';
 
 export const runtime = 'nodejs';

@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
         hasGSCServiceAccount: !!process.env.GSC_SERVICE_ACCOUNT_JSON,
         hasGA4ServiceAccount: !!process.env.GA4_SERVICE_ACCOUNT_JSON,
         hasShopifyToken: !!process.env.SHOPIFY_ACCESS_TOKEN,
-        hasGroqKey: !!process.env.GROQ_API_KEY,
+        hasOllamaBase: !!process.env.OLLAMA_BASE_URL,
+        hasOllamaModel: !!process.env.OLLAMA_MODEL,
         hasCronSecret: !!process.env.CRON_SECRET,
         hasPerplexityKey: !!process.env.PERPLEXITY_API_KEY
       }

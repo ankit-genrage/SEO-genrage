@@ -93,25 +93,32 @@ export async function checkPerplexity(keyword: string): Promise<AEOCheckResult> 
 
 export async function checkClaude(keyword: string): Promise<AEOCheckResult> {
   try {
-    const Groq = (await import('groq-sdk')).default;
-    const client = new Groq({
-      apiKey: process.env.GROQ_API_KEY || ''
-    });
+    const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+    const MODEL = process.env.OLLAMA_MODEL || 'neural-chat';
 
     const query = `What is ${keyword}? Please provide a brief answer (2-3 sentences).`;
 
-    const response = await client.chat.completions.create({
-      model: 'mixtral-8x7b-32768',
-      max_tokens: 300,
-      messages: [
-        {
-          role: 'user',
-          content: query
-        }
-      ]
-    });
+    const response = await fetchWithTimeout(
+      `${OLLAMA_BASE_URL}/api/chat`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [
+            {
+              role: 'user',
+              content: query
+            }
+          ],
+          stream: false
+        })
+      },
+      10000
+    );
 
-    const responseText = response.choices[0]?.message?.content || '';
+    const data = (await response.json()) as any;
+    const responseText = data.message?.content || '';
 
     const genrageMentioned = responseText.toLowerCase().includes('genrage');
     const genrageLinked = /https?:\/\/[^\s]*genrage[^\s]*/.test(responseText);
